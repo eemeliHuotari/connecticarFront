@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v10.2.1/ol.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    .container {
+      height: 100%;
+      width: 100%;
+    }
+    #demoMap {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+</head>
+<body>  
+  <section class="container">
+        <div id="demoMap" ></div>
+        <script src="OpenLayers.js"></script>
+        <script>
+          map = new OpenLayers.Map("demoMap");
+          map.addLayer(new OpenLayers.Layer.OSM());
+         
+          var fromProjection = new OpenLayers.Projection("EPSG:4326"); 
+          var toProjection   = new OpenLayers.Projection("EPSG:900913");
+      
+          var lat            = 65.054160;
+          var lon            = 25.460950;
+          var zoom           = 14;
+      
+          var position       = new OpenLayers.LonLat(lon, lat).transform( fromProjection, toProjection);
+          
+          var iconSize = new OpenLayers.Size(32, 32); // Set icon size
+          var iconOffset = new OpenLayers.Pixel(-iconSize.w / 2, -iconSize.h);
+          var customIcon = new OpenLayers.Icon("cars.jpg", iconSize, iconOffset);
+          
+          var markers = new OpenLayers.Layer.Markers("Markers");
+          map.addLayer(markers);
+          markers.addMarker(new OpenLayers.Marker(position, customIcon));
+          map.setCenter(position, zoom );
+        </script>
+      </div> 
+    </section>
+</body>
+</html>

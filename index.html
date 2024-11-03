@@ -45,7 +45,9 @@
           
           var markers = new OpenLayers.Layer.Markers("Markers");
           map.addLayer(markers);
-          markers.addMarker(new OpenLayers.Marker(position, customIcon));
+          var marker = new OpenLayers.Marker(position, customIcon);
+          markers.addMarker(marker);
+          
           map.setCenter(position, zoom );
 
           function getRandomPosition(lat, lon, range = 0.001) {

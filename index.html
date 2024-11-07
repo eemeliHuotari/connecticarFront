@@ -72,11 +72,11 @@
 
           // Add a click event listener to the marker
           marker.events.register("click", marker, function() {
+            // Set map zoom level to a closer level
+            map.setCenter(position, zoomOnMarkerClick);
             // Show the popup
             popup.style.display = 'block';
             popup.style.bottom = '50px'; // Adjust position if necessary
-            // Set map zoom level to a closer level
-            map.setCenter(position, zoomOnMarkerClick);
           });
 
           // Close the popup when clicking outside the map

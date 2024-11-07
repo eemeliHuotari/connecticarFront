@@ -14,54 +14,75 @@
     .container {
       height: 100%;
       width: 100%;
+      position: relative;
     }
     #demoMap {
       height: 100%;
       width: 100%;
+    }
+    .popup {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+      display: none; /* Hide initially */
+      z-index: 10;
     }
   </style>
 
 </head>
 <body>  
   <section class="container">
-        <div id="demoMap" ></div>
+        <div id="demoMap"></div>
+        <div id="popup" class="popup">This is the marker's info text!</div>
+        
         <script src="OpenLayers.js"></script>
         <script>
-          map = new OpenLayers.Map("demoMap");
+          // Initialize map
+          var map = new OpenLayers.Map("demoMap");
           map.addLayer(new OpenLayers.Layer.OSM());
-         
+
           var fromProjection = new OpenLayers.Projection("EPSG:4326"); 
-          var toProjection   = new OpenLayers.Projection("EPSG:900913");
-      
-          var lat            = 65.054160;
-          var lon            = 25.460950;
-          var zoom           = 14;
-      
-          var position       = new OpenLayers.LonLat(lon, lat).transform( fromProjection, toProjection);
-          
+          var toProjection = new OpenLayers.Projection("EPSG:900913");
+
+          var lat = 65.054160;
+          var lon = 25.460950;
+          var initialZoom = 14;
+          var zoomOnMarkerClick = 16;
+
+          var position = new OpenLayers.LonLat(lon, lat).transform(fromProjection, toProjection);
+
           var iconSize = new OpenLayers.Size(32, 32); // Set icon size
           var iconOffset = new OpenLayers.Pixel(-iconSize.w / 2, -iconSize.h);
           var customIcon = new OpenLayers.Icon("Icons/marker_icon.png", iconSize, iconOffset);
-          
+
           var markers = new OpenLayers.Layer.Markers("Markers");
           map.addLayer(markers);
           var marker = new OpenLayers.Marker(position, customIcon);
           markers.addMarker(marker);
           
-          map.setCenter(position, zoom );
+          map.setCenter(position, initialZoom);
 
-          function getRandomPosition(lat, lon, range = 0.001) {
-            var newLat = lat + (Math.random() - 0.5) * range;
-            var newLon = lon + (Math.random() - 0.5) * range;
-            return new OpenLayers.LonLat(newLon, newLat).transform(fromProjection, toProjection);
-          }
-    
-          function moveMarker() {
-            var newPosition = getRandomPosition(lat, lon);
-            marker.moveTo(map.getLayerPxFromLonLat(newPosition));
-          }
-          
-          setInterval(moveMarker, 10);
+          // Get the popup element
+          var popup = document.getElementById('popup');
+
+          // Add a click event listener to the marker
+          marker.events.register("click", marker, function() {
+            // Show the popup
+            popup.style.display = 'block';
+            popup.style.bottom = '50px'; // Adjust position if necessary
+            // Set map zoom level to a closer level
+            map.setCenter(position, zoomOnMarkerClick);
+          });
+
+          // Close the popup when clicking outside the map
+          map.events.register("click", map, function() {
+            popup.style.display = 'none';
+          });
         </script>
       </div> 
     </section>

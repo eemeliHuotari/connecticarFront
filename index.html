@@ -21,89 +21,70 @@
       width: 100%;
     }
     .popup {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
       background-color: white;
       padding: 10px;
       border: 1px solid #ccc;
       box-shadow: 0px 0px 10px rgba(0,0,0,0.5);
+      display: none; /* Hide initially */
       z-index: 10;
     }
   </style>
+
 </head>
 <body>  
   <section class="container">
-    <div id="demoMap"></div>
-    <div id="popup" class="popup" style="display: none;">This is the marker's info text!</div>
+        <div id="demoMap"></div>
+        <div id="popup" class="popup">This is the marker's info text!</div>
         
-    <script src="https://cdn.jsdelivr.net/npm/ol@v10.2.1/dist/ol.js"></script>
-    <script>
-      // Initialize map
-      var map = new ol.Map({
-        target: 'demoMap',
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
-        ],
-        view: new ol.View({
-          center: ol.proj.fromLonLat([25.460950, 65.054160]),
-          zoom: 14
-        })
-      });
+        <script src="OpenLayers.js"></script>
+        <script>
+          // Initialize map
+          var map = new OpenLayers.Map("demoMap");
+          map.addLayer(new OpenLayers.Layer.OSM());
 
-      // Define a marker icon style
-      var marker = new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.fromLonLat([25.460950, 65.054160])),
-      });
+          var fromProjection = new OpenLayers.Projection("EPSG:4326"); 
+          var toProjection = new OpenLayers.Projection("EPSG:900913");
 
-      var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon({
-          anchor: [0.5, 1],
-          src: 'Icons/marker_icon.png',
-          scale: 0.5
-        })
-      });
+          var lat = 65.054160;
+          var lon = 25.460950;
+          var initialZoom = 14;
+          var zoomOnMarkerClick = 16;
 
-      marker.setStyle(iconStyle);
+          var position = new OpenLayers.LonLat(lon, lat).transform(fromProjection, toProjection);
 
-      // Create a vector layer to hold the marker
-      var vectorSource = new ol.source.Vector({
-        features: [marker]
-      });
-      var vectorLayer = new ol.layer.Vector({
-        source: vectorSource
-      });
-      map.addLayer(vectorLayer);
+          var iconSize = new OpenLayers.Size(32, 32); // Set icon size
+          var iconOffset = new OpenLayers.Pixel(-iconSize.w / 2, -iconSize.h);
+          var customIcon = new OpenLayers.Icon("Icons/marker_icon.png", iconSize, iconOffset);
 
-      // Set up popup overlay
-      var popup = document.getElementById('popup');
-      var overlay = new ol.Overlay({
-        element: popup,
-        positioning: 'bottom-center',
-        stopEvent: false,
-        offset: [0, -50]
-      });
-      map.addOverlay(overlay);
+          var markers = new OpenLayers.Layer.Markers("Markers");
+          map.addLayer(markers);
+          var marker = new OpenLayers.Marker(position, customIcon);
+          markers.addMarker(marker);
+          
+          map.setCenter(position, initialZoom);
 
-      // Display popup on marker click
-      map.on('click', function(evt) {
-        var feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
-          return feature;
-        });
+          // Get the popup element
+          var popup = document.getElementById('popup');
 
-        if (feature === marker) {
-          var coordinates = feature.getGeometry().getCoordinates();
-          overlay.setPosition(coordinates);
-          popup.style.display = 'block';
-        } else {
-          popup.style.display = 'none';
-        }
-      });
+          // Add a click event listener to the marker
+          marker.events.register("click", marker, function() {
+            // Show the popup
+            popup.style.display = 'block';
+            popup.style.bottom = '50px'; // Adjust position if necessary
+            // Set map zoom level to a closer level
+            map.setCenter(position, zoomOnMarkerClick);
+          });
 
-      // Hide popup when clicking outside
-      map.on('pointermove', function() {
-        popup.style.display = 'none';
-      });
-    </script>
-  </section>
+          // Close the popup when clicking outside the map
+          map.events.register("click", map, function() {
+            popup.style.display = 'none';
+          });
+        </script>
+      </div> 
+    </section>
 </body>
 </html>
